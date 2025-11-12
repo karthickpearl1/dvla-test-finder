@@ -1,0 +1,49 @@
+{
+  "delays": {
+    "pageLoad": {
+      "min": 2,
+      "max": 5
+    },
+    "typing": {
+      "min": 0.1,
+      "max": 0.3
+    },
+    "clicking": {
+      "min": 0.5,
+      "max": 3
+    },
+    "navigation": {
+      "min": 1,
+      "max": 3
+    }
+  },
+  "monitoring": {
+    "checkIntervalMinutes": 15,
+    "maxRetries": 3,
+    "headless": false,
+    "manualInterventionTimeout": 30
+  },
+  "notification": {
+    "enabled": true,
+    "methods": ["console", "file"]
+  },
+  "targetCentres": [
+    "London",
+    "Manchester",
+    "Birmingham"
+  ],
+  "collection": {
+    "csvFilePath": "test-centres.csv",
+    "maxLoadMoreClicks": 20,
+    "duplicateThreshold": 3,
+    "verificationTimeout": 60,
+    "postcodeDelay": {
+      "min": 3,
+      "max": 6
+    }
+  },
+  "postcodes": {
+    "strategy": "geographic",
+    "customList": []
+  }
+}

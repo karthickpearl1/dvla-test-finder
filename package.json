@@ -1,0 +1,21 @@
+{
+  "name": "uk-driving-test-monitor",
+  "version": "1.0.0",
+  "description": "Monitor UK driving test centre availability",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "monitor": "node src/index.js monitor",
+    "collect": "node src/index.js collect",
+    "test-email": "node test-email.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^7.0.10",
+    "puppeteer": "^24.29.1",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
+  }
+}
