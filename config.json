@@ -18,7 +18,7 @@
     }
   },
   "monitoring": {
-    "checkIntervalMinutes": 15,
+    "checkIntervalMinutes": 2,
     "maxRetries": 3,
     "headless": false,
     "manualInterventionTimeout": 30
@@ -45,5 +45,20 @@
   "postcodes": {
     "strategy": "geographic",
     "customList": []
+  },
+  "session": {
+    "browserRotation": {
+      "enabled": true,
+      "browsers": ["chrome", "edge"],
+      "randomize": true
+    },
+    "proxy": {
+      "enabled": true,
+      "provider": "brightdata",
+      "host": "",
+      "port": "",
+      "username": "",
+      "password": ""
+    }
   }
 }

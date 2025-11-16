@@ -476,6 +476,159 @@ What to do:
 }
 
 /**
+ * Send email notification for security block detection
+ * @param {Object} blockInfo - Security block information
+ * @param {string} actionDescription - Description of action that triggered block
+ * @param {string} screenshotPath - Optional path to screenshot file
+ * @returns {Promise<boolean>} True if email sent successfully
+ */
+export async function sendSecurityBlockAlert(blockInfo, actionDescription = 'unknown action', screenshotPath = null) {
+  const transporter = getTransporter();
+  
+  if (!transporter) {
+    return false;
+  }
+
+  const recipientEmail = getRecipientEmails();
+  
+  if (!recipientEmail) {
+    return false;
+  }
+
+  try {
+    const details = blockInfo.details || {};
+    const subject = '🚨 DVSA Security Block Detected - Automation Stopped';
+    
+    const htmlContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+          <h1 style="color: white; margin: 0; font-size: 28px;">🚨 Security Block Detected</h1>
+        </div>
+        
+        <div style="background: #f7f7f7; padding: 30px; border-radius: 0 0 10px 10px;">
+          <div style="background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <h2 style="color: #333; margin-top: 0;">⛔ Access Denied by DVSA</h2>
+            
+            <p style="color: #666; font-size: 16px; line-height: 1.6;">
+              The DVSA website has blocked access to your IP address. The automation has been stopped.
+            </p>
+            
+            <div style="background: #fee2e2; border-left: 4px solid #dc2626; padding: 15px; margin: 20px 0; border-radius: 4px;">
+              <p style="margin: 0; color: #991b1b; font-weight: bold;">
+                ⚠️ Triggered by: ${actionDescription}
+              </p>
+            </div>
+            
+            <div style="margin: 20px 0;">
+              <h3 style="color: #333; font-size: 18px;">Block Details:</h3>
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr style="border-bottom: 1px solid #e5e7eb;">
+                  <td style="padding: 10px; color: #666; font-weight: bold;">Error Number:</td>
+                  <td style="padding: 10px; color: #333;">${details.errorNumber || 'N/A'}</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #e5e7eb;">
+                  <td style="padding: 10px; color: #666; font-weight: bold;">Timestamp:</td>
+                  <td style="padding: 10px; color: #333;">${details.timestamp || 'N/A'}</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #e5e7eb;">
+                  <td style="padding: 10px; color: #666; font-weight: bold;">Your IP:</td>
+                  <td style="padding: 10px; color: #333;">${details.yourIP || 'N/A'}</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #e5e7eb;">
+                  <td style="padding: 10px; color: #666; font-weight: bold;">Proxy IP:</td>
+                  <td style="padding: 10px; color: #333;">${details.proxyIP || 'N/A'}</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #e5e7eb;">
+                  <td style="padding: 10px; color: #666; font-weight: bold;">Incident ID:</td>
+                  <td style="padding: 10px; color: #333;">${details.incidentID || 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px; color: #666; font-weight: bold;">Page URL:</td>
+                  <td style="padding: 10px; color: #333; word-break: break-all;">${details.url || 'N/A'}</td>
+                </tr>
+              </table>
+            </div>
+            
+            <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 4px;">
+              <h4 style="margin: 0 0 10px 0; color: #92400e;">What to do:</h4>
+              <ol style="margin: 0; padding-left: 20px; color: #92400e; line-height: 1.8;">
+                <li>Wait for some time before retrying (recommended: 1-2 hours)</li>
+                <li>Consider using a VPN or proxy service</li>
+                <li>Reduce check frequency in config.json</li>
+                <li>Contact DVSA if the block persists</li>
+              </ol>
+            </div>
+            
+            ${screenshotPath ? `
+            <div style="background: #e0f2fe; border-left: 4px solid #0284c7; padding: 15px; margin: 20px 0; border-radius: 4px;">
+              <p style="margin: 0; color: #075985;">
+                <strong>📸 Screenshot:</strong> A screenshot of the block page has been attached to this email.
+              </p>
+            </div>
+            ` : ''}
+          </div>
+          
+          <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">
+            This alert was sent by UK Driving Test Monitor
+          </p>
+        </div>
+      </div>
+    `;
+
+    const textContent = `
+🚨 DVSA SECURITY BLOCK DETECTED 🚨
+
+The DVSA website has blocked access to your IP address. The automation has been stopped.
+
+⚠️ Triggered by: ${actionDescription}
+
+Block Details:
+─────────────────────────────────────────
+Error Number:  ${details.errorNumber || 'N/A'}
+Timestamp:     ${details.timestamp || 'N/A'}
+Your IP:       ${details.yourIP || 'N/A'}
+Proxy IP:      ${details.proxyIP || 'N/A'}
+Incident ID:   ${details.incidentID || 'N/A'}
+Page URL:      ${details.url || 'N/A'}
+─────────────────────────────────────────
+
+What to do:
+1. Wait for some time before retrying (recommended: 1-2 hours)
+2. Consider using a VPN or proxy service
+3. Reduce check frequency in config.json
+4. Contact DVSA if the block persists
+
+${screenshotPath ? '📸 A screenshot of the block page has been attached to this email.' : ''}
+    `.trim();
+
+    // Prepare email options
+    const mailOptions = {
+      from: `"UK Test Monitor" <${process.env.EMAIL_USER}>`,
+      to: recipientEmail,
+      subject: subject,
+      text: textContent,
+      html: htmlContent,
+    };
+    
+    // Add screenshot attachment if provided
+    if (screenshotPath) {
+      console.log(`📎 Attaching screenshot: ${screenshotPath}`);
+      mailOptions.attachments = [{
+        filename: 'security-block-screenshot.png',
+        path: screenshotPath,
+      }];
+    }
+
+    await transporter.sendMail(mailOptions);
+    console.log(`✅ Security block alert email sent to ${recipientEmail}`);
+    return true;
+  } catch (error) {
+    console.error('❌ Failed to send security block alert email:', error.message);
+    return false;
+  }
+}
+
+/**
  * Test email configuration by sending a test email
  * @returns {Promise<boolean>} True if test email sent successfully
  */
